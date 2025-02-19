@@ -43,6 +43,13 @@
 			<artifactId>spring-cloud-starter-eureka-server</artifactId>
 		</dependency>
 
+
+		<dependency>
+			<groupId>org.aspectj</groupId>
+			<artifactId>aspectjweaver</artifactId>
+			<version>1.9.7</version>
+		</dependency>
+
 		<dependency>
 			<groupId>io.springfox</groupId>
 			<artifactId>springfox-swagger2</artifactId>
@@ -61,6 +68,7 @@
 			<artifactId>spring-boot-admin-starter-server</artifactId>
 			<version>1.5.7</version>
 			<!--  Compatible avec Java 8/11  -->
+
 		</dependency>
 		<dependency>
 			<groupId>de.codecentric</groupId>
@@ -76,6 +84,12 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter</artifactId>
+			<version>RELEASE</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>

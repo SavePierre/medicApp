@@ -70,6 +70,8 @@
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-hystrix-dashboard</artifactId>
 		</dependency>
+		<!--  Hystrix Dashboard  -->
+
 
 		<dependency>
 			<groupId>io.springfox</groupId>
@@ -78,13 +80,23 @@
 		</dependency>
 
 		<dependency>
+			<groupId>org.aspectj</groupId>
+			<artifactId>aspectjweaver</artifactId>
+			<version>1.9.7</version>
+		</dependency>
+
+		<dependency>
 			<groupId>io.springfox</groupId>
 			<artifactId>springfox-swagger-ui</artifactId>
 			<version>2.6.1</version>
 		</dependency>
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter</artifactId>
+			<version>RELEASE</version>
+			<scope>test</scope>
+		</dependency>
 
-
-		<!--  Hystrix Dashboard  -->
 	</dependencies>
 	<dependencyManagement>
 		<dependencies>

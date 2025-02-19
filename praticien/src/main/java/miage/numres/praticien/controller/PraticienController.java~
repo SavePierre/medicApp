@@ -1,0 +1,26 @@
+package miage.numres.praticien.controller;
+
+import miage.numres.praticien.model.Praticien;
+import org.springframework.web.bind.annotation.*;
+import java.util.Arrays;
+import java.util.List;
+
+@RestController
+@RequestMapping("/praticiens")
+public class PraticienController {
+
+    private static final List<Praticien> praticiens = Arrays.asList(
+            new Praticien(1,"Dr. Smith"),
+            new Praticien(2, "Dr. Johnson"),
+            new Praticien(3, "Dr. Williams")
+    );
+
+    @GetMapping("/findPraticienDetails/{praticienId}")
+    public Praticien getPraticienDetails(@PathVariable int praticienId) {
+        System.out.println("Getting Praticien details for " + praticienId);
+        return praticiens.stream()
+                .filter(p -> p.getId() == praticienId)
+                .findFirst()
+                .orElse(null);
+    }
+}

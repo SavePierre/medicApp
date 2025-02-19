@@ -1,38 +1,107 @@
 package miage.numres.api_gateway.controller;
 
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpMethod;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.*;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
 @RestController
+@RequestMapping("/patients")
 public class PatientController {
 
     @Autowired
-    RestTemplate restTemplate;
+    private RestTemplate restTemplate;
 
-    @RequestMapping(value = "/patientDetails/{patientId}", method = RequestMethod.GET)
-    @HystrixCommand(fallbackMethod = "fallback")
+    private static final String PATIENT_SERVICE_URL = "http://patient-service/patients";
+
+    // 🔹 GET - Récupérer un patient par ID
+    @GetMapping("/{patientId}")
+    @HystrixCommand(fallbackMethod = "fallbackGetPatient")
     public String getPatientDetails(@PathVariable int patientId) {
         System.out.println("Getting Patient details for " + patientId);
 
-        String response = this.restTemplate.exchange("http://patient-service/findPatientDetails/{patientId}",
-                HttpMethod.GET, null, new ParameterizedTypeReference<String>() {
-                }, patientId).getBody();
+        String response = restTemplate.exchange(
+                PATIENT_SERVICE_URL + "/" + patientId,
+                HttpMethod.GET, null, new ParameterizedTypeReference<String>() {}, patientId
+        ).getBody();
 
-        System.out.println("Response Body " + response);
-
-        return "Patient Id -  " + patientId + " [ Patient Details " + response + " ]";
+        return "Patient Id - " + patientId + " [ Patient Details " + response + " ]";
     }
 
-    public String fallback(int patientId) {
+    public String fallbackGetPatient(int patientId) {
         return "Fallback response:: No patient details available temporarily for Patient Id - " + patientId;
+    }
+
+    // 🔹 GET - Récupérer tous les patients
+    @GetMapping
+    @HystrixCommand(fallbackMethod = "fallbackGetAllPatients")
+    public String getAllPatients() {
+        return restTemplate.exchange(
+                PATIENT_SERVICE_URL, HttpMethod.GET, null, String.class
+        ).getBody();
+    }
+
+    public String fallbackGetAllPatients() {
+        return "Fallback response:: No patient data available at the moment.";
+    }
+
+    // 🔹 POST - Ajouter un patient
+    @PostMapping
+    @HystrixCommand(fallbackMethod = "fallbackAddPatient")
+    public String addPatient(@RequestBody String patient) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<String> request = new HttpEntity<>(patient, headers);
+
+        ResponseEntity<String> response = restTemplate.exchange(
+                PATIENT_SERVICE_URL, HttpMethod.POST, request, String.class
+        );
+
+        return response.getBody();
+    }
+
+    public String fallbackAddPatient(String patient) {
+        return "Fallback response:: Unable to add patient at this time.";
+    }
+
+    // 🔹 PUT - Mettre à jour un patient
+    @PutMapping("/{patientId}")
+    @HystrixCommand(fallbackMethod = "fallbackUpdatePatient")
+    public String updatePatient(@PathVariable int patientId, @RequestBody String patient) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<String> request = new HttpEntity<>(patient, headers);
+
+        ResponseEntity<String> response = restTemplate.exchange(
+                PATIENT_SERVICE_URL + "/" + patientId,
+                HttpMethod.PUT, request, String.class
+        );
+
+        return response.getBody();
+    }
+
+    public String fallbackUpdatePatient(int patientId, String patient) {
+        return "Fallback response:: Unable to update patient at this time.";
+    }
+
+    // 🔹 DELETE - Supprimer un patient
+    @DeleteMapping("/{patientId}")
+    @HystrixCommand(fallbackMethod = "fallbackDeletePatient")
+    public String deletePatient(@PathVariable int patientId) {
+        restTemplate.exchange(
+                PATIENT_SERVICE_URL + "/" + patientId,
+                HttpMethod.DELETE, null, Void.class
+        );
+
+        return "Patient deleted successfully!";
+    }
+
+    public String fallbackDeletePatient(int patientId) {
+        return "Fallback response:: Unable to delete patient at this time.";
     }
 
     @Bean
